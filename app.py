@@ -36,7 +36,7 @@ client = carregar_cliente()
 def transcrever_audio(caminho_audio: Path) -> str:
     with open(caminho_audio, "rb") as audio_file:
         transcript = client.audio.transcriptions.create(
-            model="gpt-4o-mini-transcribe",
+            model="whisper-1",
             file=audio_file,
         )
     return transcript.text.strip()
@@ -44,21 +44,21 @@ def transcrever_audio(caminho_audio: Path) -> str:
 
 
 def gerar_resposta(texto_usuario: str) -> str:
-    resposta = client.responses.create(
-        model="gpt-4.1-mini",
-        input=[
+    resposta = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": texto_usuario},
         ],
     )
-    return resposta.output_text.strip()
+    return resposta.choices[0].message.content.strip()
 
 
 
 def gerar_audio(texto: str, caminho_saida: Path) -> None:
     with client.audio.speech.with_streaming_response.create(
-        model="gpt-4o-mini-tts",
-        voice="marin",
+        model="tts-1",
+        voice="alloy",
         input=texto,
     ) as response:
         response.stream_to_file(str(caminho_saida))
